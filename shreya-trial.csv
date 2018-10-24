@@ -1,6 +1,5 @@
 OscP5 0.9.9 infos, comments, questions at http://www.sojamo.de/oscP5
 
-
 ### [2018/4/13 13:54:11] PROCESS @ OscP5 stopped.
 ### [2018/4/13 13:54:11] PROCESS @ UdpClient.openSocket udp socket initialized.
 ### [2018/4/13 13:54:12] PROCESS @ UdpServer.start() new Unicast DatagramSocket created @ port 5002
