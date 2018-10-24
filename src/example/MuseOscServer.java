@@ -22,7 +22,7 @@ import java.sql.Timestamp;
 
 import oscP5.*;
 
-public class MuseOscServernew {
+public class MuseOscServer {
 
 	static MuseOscServer museOscServer;
 	
