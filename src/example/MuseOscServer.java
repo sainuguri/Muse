@@ -32,94 +32,47 @@ public class MuseOscServer {
 	static int recvPort = 5002; 
 
 	public static void main(String [] args) throws FileNotFoundException {
+
+    File filename = new File("sam-base.csv");
+
+    // Enable auto-flush so data is written immediately
+    PrintStream o = new PrintStream(new java.io.FileOutputStream(filename), true);
+    System.setOut(o);
+
+    // Initialize the object FIRST, then OscP5 inside the constructor
+    museOscServer = new MuseOscServer();
+
+    System.out.println("TimeStamp, Alpha, Beta, Delta, Gamma, Theta");
+}
+public MuseOscServer() {
+    museServer = new OscP5(this, recvPort);
+}
 	
-		//Creates a .csv file to write the EEG data into
-		File filename = new File("sam-base.csv");
-
-		//Set the printstream to the filename
-		PrintStream o = new PrintStream(filename);
-		System.setOut(o);
-		
-		museOscServer = new MuseOscServer();
-		//calling the Muse server using the OscP5 protocol: OscP5(theParent, ReceivingPort)
-
-		museOscServer.museServer = new OscP5(museOscServer, recvPort);
-		System.out.println("TimeStamp, Alpha, Beta, Delta, Gamma, Theta");
-	}
-	
-	void oscEvent(OscMessage msg) throws IOException{
-		
-		//Function runs for every oscEvent = for example, for every iteration of EEG data being received
-
-		Object[] arguments = msg.arguments();		
-		
-		Timestamp timeStamp = new Timestamp(System.currentTimeMillis());
-		
-		//Muse EEG headband sends a lot of signals but we are only interested in Alpha, Beta, Gamma, Delta and Theta
-		//For more information, visit: http://developer.choosemuse.com/tools/available-data
-
-		
-		//Checking if the signal is Alpha
-		
-		if(msg.checkAddrPattern("/muse/elements/alpha_absolute")==true) {
-		
-			System.out.print("\n"+timeStamp+",");
-			
-			arguments = msg.arguments();
-			System.out.println("float"+msg.get(0).floatValue()+", int:"+msg.get(0).intValue()+",string:"+msg.get(0).toString()+",long:"+msg.get(0).longValue()+",double"+msg.get(0).doubleValue());
-			
-			//printing it out into the .csv file in a way that the average is calculated and written
-		
-			System.out.print("=("+arguments[0]+"+ ");
-			System.out.print(arguments[1]+"+");
-			System.out.print(arguments[2]+"+");
-			System.out.print(arguments[3]+")/4,");
-		}	
-	
-		
-		//Check for Beta signal
-		if(msg.checkAddrPattern("/muse/elements/beta_absolute")==true) {
-			
-			arguments = msg.arguments();
-			
-			System.out.print("=("+arguments[0]+"+ ");
-			System.out.print(arguments[1]+"+");
-			System.out.print(arguments[2]+"+");
-			System.out.print(arguments[3]+")/4,");
-		}
-
-		//check for Delta signal	
-		if(msg.checkAddrPattern("/muse/elements/delta_absolute")==true) {
-			
-			arguments = msg.arguments();
-		
-			System.out.print("=("+arguments[0]+"+ ");
-			System.out.print(arguments[1]+"+");
-			System.out.print(arguments[2]+"+");
-			System.out.print(arguments[3]+")/4,");
-		}
-	
-		//check for Gamma signal	
-		if(msg.checkAddrPattern("/muse/elements/gamma_absolute")==true) {
-			
-			arguments = msg.arguments();
-			
-			System.out.print("=("+arguments[0]+"+ ");
-			System.out.print(arguments[1]+"+");
-			System.out.print(arguments[2]+"+");
-			System.out.print(arguments[3]+")/4,");
-		}
-
-		//Check for Theta signal
-		if(msg.checkAddrPattern("/muse/elements/theta_absolute")==true) {
-			
-			arguments = msg.arguments();
-			
-			System.out.print("=("+arguments[0]+"+ ");
-			System.out.print(arguments[1]+"+");
-			System.out.print(arguments[2]+"+");
-			System.out.print(arguments[3]+")/4,");
-		}	
-		
-	} 
+void oscEvent(OscMessage msg) {
+    try {
+        if(msg.checkAddrPattern("/muse/elements/alpha_absolute")==true) {
+            Timestamp timeStamp = new Timestamp(System.currentTimeMillis());
+            float alpha = (Float) msg.arguments()[0];
+            System.out.print("\n" + timeStamp + "," + alpha + ",");
+        }
+        if(msg.checkAddrPattern("/muse/elements/beta_absolute")==true) {
+            float beta = (Float) msg.arguments()[0];
+            System.out.print(beta + ",");
+        }
+        if(msg.checkAddrPattern("/muse/elements/delta_absolute")==true) {
+            float delta = (Float) msg.arguments()[0];
+            System.out.print(delta + ",");
+        }
+        if(msg.checkAddrPattern("/muse/elements/gamma_absolute")==true) {
+            float gamma = (Float) msg.arguments()[0];
+            System.out.print(gamma + ",");
+        }
+        if(msg.checkAddrPattern("/muse/elements/theta_absolute")==true) {
+            float theta = (Float) msg.arguments()[0];
+            System.out.print(theta + ",");
+        }
+    } catch (Exception e) {
+        System.err.println("Error in oscEvent: " + e.getMessage());
+    }
+}
 }
